@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <string>
 #include <sstream>
+#include <fstream>
 
 // C declarations
 #include <stdio.h>
@@ -20,8 +21,15 @@ using namespace std;
 int main()
 {
 	// Delete old file history
-	string oldFile = "rm ShellResults.txt";
-	system(oldFile.c_str());
+	ofstream shellOutput;
+	string oldFile = "ShellResults.txt";
+	shellOutput.open(oldFile);
+	if(shellOutput)
+	{
+		string rmFile = "rm " + oldFile;
+		system(rmFile.c_str());
+		shellOutput.close();
+	}
 
 	// Print a prompt
 	printf("This is the shell start. Enter a command. \n");
@@ -31,45 +39,93 @@ int main()
 	{
 		stringstream ssObject;
 		string input;
-		string command;
+		string command, command2;
+		string history = " >> ShellResults.txt";
 
 		getline(cin, input);
 
 		ssObject << input;
-		ssObject >> command;
+		ssObject >> command >> command2;
 
-		if(input == "quit")
+		// cout << "This is input " << input << endl;
+		// cout << "This is command " << command << endl;
+		// cout << "This is command2 " << command2 << endl;
+
+		if(command == "quit")
 		{
 			break;
 		}
-		else if(input == "myprocess") // myprocess
+		else if(command == "myprocess") // myprocess
 		{
-			string command = "pidof";
+			string newCommand = "pidof " + command2 + history; 
+			system(newCommand.c_str());
+		}
+		else if(command == "allprocesses") // allprocesses
+		{
+			command = "ps" + history;
 			system(command.c_str());
+		}
+		else if(command == "chgd") // chgd <directory>
+		{
+			command = "cd " + command2 + history;
+			system(command.c_str());
+		}
+		else if(command == "clr") // clr
+		{
+			if(!command2.empty())
+			{
+				command = "clear " + command2 + history;
+			}
+			else
+			{
+				command = "clear" + history;
+			}
+			system(command.c_str());
+		}
+		else if(command == "dir") // dir
+		{
+			command = "ls -al" + command2 +  history;
+			system(command.c_str());
+		}
+		else if(command == "environ") // environ
+		{
+			command = "env" + history;
+			system(command.c_str());
+		}
+		else if(command == "help") // help
+		{
+			if(!command2.empty())
+			{
+				command = "man " + command2 + history;
+			}
+			else
+			{
+				command = "man" + history;
+			}
+			system(command.c_str());
+		}
+		else if(command == "repeat") // echo
+		{
+			char command3;
+			ssObject >> command3;
+			if(command3 == '>')
+			{
+				string fileName;
+				ssObject >> fileName;
+				command = "echo " + command2 + " " + command3 + " " + fileName;
+				system(command.c_str());
+			}
+			else
+			{
+				command = "echo " + command2 + history;
+				system(command.c_str());
+			}
 		}
 		else
 		{
-			string inputToFile = input + " >> ShellResults.txt";
+			string inputToFile = input + history;
 			system(inputToFile.c_str());
 		}
-
-		// allprocesses
-
-		// chgd <directory> 
-
-		// clr 
-
-
-		// dir <directory>
-
-
-		// environ
-		// help
-
-		// quit 
-
-		// string inputToFile = input + " >> ShellResults.txt";
-		// system(inputToFile.c_str());
 
 	}
 	fflush(stdin);
